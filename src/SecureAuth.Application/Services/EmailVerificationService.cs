@@ -33,12 +33,12 @@ namespace SecureAuth.Application.Services
             _tokenProvider = tokenProvider;
         }
 
-        public async Task<Result<EmailOtpResponseDto>> SendEmailVerificationOtp(EmailOtpRequestDto emailOtpRequestDto)
+        public async Task<Result<EmailOtpResponseDto>> SendEmailVerificationOtp(EmailOtpRequestDto emailOtpRequestDto, CancellationToken cancellationToken)
         {
-            if(await _userRepository.EmailExistsAsync(emailOtpRequestDto.Email))
+            if(await _userRepository.EmailExistsAsync(emailOtpRequestDto.Email, cancellationToken))
                  return EmailErrors.AlreadyExists;
 
-            var emailVerificationExists= await _emailVerificationRepository.GetVerificationByEmailAsync(emailOtpRequestDto.Email);
+            var emailVerificationExists= await _emailVerificationRepository.GetVerificationByEmailAsync(emailOtpRequestDto.Email, cancellationToken);
             
            if( emailVerificationExists is not null && emailVerificationExists.OtpExpiresOnUtc > DateTime.UtcNow)                
            {
@@ -59,18 +59,18 @@ namespace SecureAuth.Application.Services
 
             _emailVerificationRepository.Add(emailVerification);
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            await _emailService.SendOtp(otp, emailOtpRequestDto.Email);
+            await _emailService.SendOtp(otp, emailOtpRequestDto.Email, cancellationToken);
             
             return new EmailOtpResponseDto() { 
                 VerificationId = emailVerification.VerificationId, OtpExpiresAtUtc = emailVerification.OtpExpiresOnUtc
             };
         }
 
-        public async Task<Result<VerifyEmailResponseDto>> VerifyEmail(VerifyEmailRequestDto emailRequestDto)
+        public async Task<Result<VerifyEmailResponseDto>> VerifyEmail(VerifyEmailRequestDto emailRequestDto, CancellationToken cancellationToken)
         {
-            var emailVerification = await _emailVerificationRepository.GetByIdAsync(emailRequestDto.VerificationId);
+            var emailVerification = await _emailVerificationRepository.GetByIdAsync(emailRequestDto.VerificationId, cancellationToken);
 
            var error = OtpValidator.Validate(emailVerification);
 
@@ -88,7 +88,7 @@ namespace SecureAuth.Application.Services
 
            var tokenResult = _tokenProvider.GenerateRegistrationToken(emailVerification.Email); 
 
-           await _unitOfWork.SaveChangesAsync();
+           await _unitOfWork.SaveChangesAsync(cancellationToken);
 
            return new VerifyEmailResponseDto() { 
                RegistrationToken = tokenResult.Token,  ExpiresOnUtc = tokenResult.ExpiresOnUtc

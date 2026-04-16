@@ -13,7 +13,7 @@ namespace SecureAuth.Application.Services
             _emailJobQueue = emailJobQueue;
         }
 
-        public async Task SendOtp(string otp, string to)
+        public async Task SendOtp(string otp, string to, CancellationToken cancellationToken)
         {
             EmailJob emailJob = new EmailJob()
             {
@@ -23,7 +23,7 @@ namespace SecureAuth.Application.Services
                 HtmlBody = null
             };
 
-            await _emailJobQueue.Enqueue(emailJob);
+            await _emailJobQueue.Enqueue(emailJob, cancellationToken);
         }
     }
 }

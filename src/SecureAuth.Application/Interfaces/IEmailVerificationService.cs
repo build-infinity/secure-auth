@@ -5,7 +5,7 @@ namespace SecureAuth.Application.Interfaces
 {
     public interface IEmailVerificationService
     {
-        Task<Result<EmailOtpResponseDto>> SendEmailVerificationOtp(EmailOtpRequestDto emailOtpRequestDto);
-        Task<Result<VerifyEmailResponseDto>> VerifyEmail(VerifyEmailRequestDto emailRequestDto);
+        Task<Result<EmailOtpResponseDto>> SendEmailVerificationOtp(EmailOtpRequestDto emailOtpRequestDto, CancellationToken cancellationToken);
+        Task<Result<VerifyEmailResponseDto>> VerifyEmail(VerifyEmailRequestDto emailRequestDto, CancellationToken cancellationToken);
     }
 }

@@ -1,4 +1,3 @@
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.EntityFrameworkCore;
 using SecureAuth.Application.Abstractions;
 using SecureAuth.Domain.Models;
@@ -14,18 +13,17 @@ namespace SecureAuth.Infrastructure.Presistence.Repositories
         {
             _context = context;
         }
-
         public void Add(User user)
         {
             _context.Users.Add(user);
         }
-        public async Task<User?> GetByNormalizedEmailAsync(string normalizedEmail)
+        public async Task<User?> GetByNormalizedEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
         {
-            return await _context.Users.AsNoTracking().SingleOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail);
+            return await _context.Users.AsNoTracking().SingleOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail, cancellationToken);
         }
-        public async Task<User?> GetByIdAsync(Guid id) 
+        public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken) 
         {
-          return  await _context.Users.FindAsync(id);
+          return  await _context.Users.FindAsync(id, cancellationToken);
         }
         
         public IQueryable<User> GetAll()
@@ -36,9 +34,9 @@ namespace SecureAuth.Infrastructure.Presistence.Repositories
         {
            _context.Users.Remove(user);
         }
-        public async Task<bool> EmailExistsAsync(string email)
+        public async Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken)
         {
-            return await _context.Users.AnyAsync(x => x.Email == email);
+            return await _context.Users.AnyAsync(x => x.Email == email, cancellationToken);
         }
     }
 }

@@ -4,6 +4,6 @@ namespace SecureAuth.Application.Abstractions
 {
     public interface IRoleRepository
     {
-        Task<Role?> GetByName(string roleName);
+        Task<Role?> GetByName(string roleName, CancellationToken cancellationToken);
     }
 }

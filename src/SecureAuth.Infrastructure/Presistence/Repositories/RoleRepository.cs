@@ -14,9 +14,9 @@ namespace SecureAuth.Infrastructure.Presistence.Repositories
             _context = context;
         }
 
-        public async Task<Role?> GetByName(string roleName)
+        public async Task<Role?> GetByName(string roleName, CancellationToken cancellationToken)
         {
-            return await _context.Roles.FirstOrDefaultAsync(r => r.Name == roleName);
+            return await _context.Roles.FirstOrDefaultAsync(r => r.Name == roleName, cancellationToken);
         }
     }
 }

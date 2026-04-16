@@ -35,9 +35,9 @@ namespace SecureAuth.Application.Services
             _passwordHasher = passwordHasher;
         }
        
-        public async Task<Result<UserSignUpResponseDto>> SignUpUser (UserSignUpRequestDto userRegistrationRequestDto, string userEmailFromJwt)
+        public async Task<Result<UserSignUpResponseDto>> SignUpUser (UserSignUpRequestDto userRegistrationRequestDto, string userEmailFromJwt, CancellationToken cancellationToken)
         {    
-            if(await _userRepository.EmailExistsAsync(userEmailFromJwt))
+            if(await _userRepository.EmailExistsAsync(userEmailFromJwt, cancellationToken))
                  return EmailErrors.AlreadyExists;
 
             var error = PasswordValidator.Validate(userRegistrationRequestDto.Password.Trim());
@@ -45,7 +45,7 @@ namespace SecureAuth.Application.Services
             if(error is not null)
                return error;
 
-            var defaultRole = await _roleRepository.GetByName(Roles.User) ?? throw new Exception(); //must be custom excetion
+            var defaultRole = await _roleRepository.GetByName(Roles.User, cancellationToken) ?? throw new Exception(); //must be custom excetion
 
             User user = new User 
             {
@@ -74,7 +74,7 @@ namespace SecureAuth.Application.Services
 
             _userRepository.Add(user);
             _refreshTokenRepository.Add(token);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new UserSignUpResponseDto() { 
                 AccessToken = accessTokenResult.Token,
@@ -84,9 +84,9 @@ namespace SecureAuth.Application.Services
             };
         }
 
-        public async Task<Result<UserSignInResponseDto>> SignInUser(UserSignInRequestDto userSignInRequestDto)
+        public async Task<Result<UserSignInResponseDto>> SignInUser(UserSignInRequestDto userSignInRequestDto, CancellationToken cancellationToken)
         {
-            var verifiedUser = await _userRepository.GetByNormalizedEmailAsync(userSignInRequestDto.Email.ToUpperInvariant());
+            var verifiedUser = await _userRepository.GetByNormalizedEmailAsync(userSignInRequestDto.Email.ToUpperInvariant(), cancellationToken);
             if(verifiedUser is null)
                 return AuthErrors.InvalidCredentials;
             
@@ -107,7 +107,7 @@ namespace SecureAuth.Application.Services
             };
 
             _refreshTokenRepository.Add(refreshToken);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new UserSignInResponseDto(){ 
                 AccessToken = accessTokenResult.Token, AccessTokenExpiresOnUtc = accessTokenResult.ExpiresOnUtc, 
@@ -115,11 +115,11 @@ namespace SecureAuth.Application.Services
             };
         }
 
-        public async Task<Result<UserSignOutResponseDto>> SignOutUser(UserSignOutRequestDto userSignOutRequestDto)
+        public async Task<Result<UserSignOutResponseDto>> SignOutUser(UserSignOutRequestDto userSignOutRequestDto, CancellationToken cancellationToken)
         {
             var tokenHash = Helper.Hash(userSignOutRequestDto.RefreshToken);
 
-            var storedRefreshToken = await _refreshTokenRepository.GetByTokenHashAsync(tokenHash);
+            var storedRefreshToken = await _refreshTokenRepository.GetByTokenHashAsync(tokenHash, cancellationToken);
 
             if(storedRefreshToken is null) 
                 return AuthErrors.RefreshTokenInvalid;
@@ -129,17 +129,17 @@ namespace SecureAuth.Application.Services
              if(error is not null)
                 return error;
             
-            if(!await _refreshTokenRepository.TryRevokeAsync(storedRefreshToken.TokenHash))
+            if(!await _refreshTokenRepository.TryRevokeAsync(storedRefreshToken.TokenHash, cancellationToken))
                return AuthErrors.RefreshTokenAlreadyRevoked;
 
             return new UserSignOutResponseDto { Message = "Sign out successfully"};
         }
 
-        public async Task<Result<RefreshTokenResponseDto>> TokenRefresh(RefreshTokenRequestDto refreshTokenRequestDto)
+        public async Task<Result<RefreshTokenResponseDto>> TokenRefresh(RefreshTokenRequestDto refreshTokenRequestDto, CancellationToken cancellationToken)
         {
             var tokenHash = Helper.Hash(refreshTokenRequestDto.RefreshToken);
     
-            var storedToken = await _refreshTokenRepository.GetByTokenHashAsync(tokenHash);
+            var storedToken = await _refreshTokenRepository.GetByTokenHashAsync(tokenHash, cancellationToken);
 
             if(storedToken is null)
                 return AuthErrors.RefreshTokenInvalid;
@@ -149,7 +149,7 @@ namespace SecureAuth.Application.Services
             if(error is not null) 
                  return error;
 
-            if(!await _refreshTokenRepository.TryRevokeAsync(storedToken.TokenHash))
+            if(!await _refreshTokenRepository.TryRevokeAsync(storedToken.TokenHash, cancellationToken))
                 return AuthErrors.RefreshTokenAlreadyRevoked; 
 
             var refreshTokenResult = _tokenProvider.GenerateRefreshToken();
@@ -166,7 +166,7 @@ namespace SecureAuth.Application.Services
             var accessTokenResult = _tokenProvider.GenerateAccessToken(storedToken.User);
 
             _refreshTokenRepository.Add(token);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new RefreshTokenResponseDto{ 
                 AccessToken = accessTokenResult.Token, 

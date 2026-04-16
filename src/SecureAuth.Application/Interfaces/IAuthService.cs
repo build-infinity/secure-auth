@@ -6,9 +6,9 @@ namespace SecureAuth.Application.Interfaces
 {
     public interface IAuthService 
     {
-        Task<Result<UserSignUpResponseDto>> SignUpUser (UserSignUpRequestDto userRegistrationRequestDto, string userEmailFromJwt);
-        Task<Result<UserSignInResponseDto>> SignInUser(UserSignInRequestDto userLoginRequestDto);
-        Task<Result<RefreshTokenResponseDto>> TokenRefresh(RefreshTokenRequestDto refreshTokenRequestDto);
-        Task<Result<UserSignOutResponseDto>> SignOutUser(UserSignOutRequestDto userSignOutRequestDto);
+        Task<Result<UserSignUpResponseDto>> SignUpUser (UserSignUpRequestDto userRegistrationRequestDto, string userEmailFromJwt, CancellationToken cancellationToken);
+        Task<Result<UserSignInResponseDto>> SignInUser(UserSignInRequestDto userLoginRequestDto, CancellationToken cancellationToken);
+        Task<Result<RefreshTokenResponseDto>> TokenRefresh(RefreshTokenRequestDto refreshTokenRequestDto, CancellationToken cancellationToken);
+        Task<Result<UserSignOutResponseDto>> SignOutUser(UserSignOutRequestDto userSignOutRequestDto, CancellationToken cancellationToken);
     }
 }

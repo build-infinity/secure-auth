@@ -17,20 +17,20 @@ namespace SecureAuth.Infrastructure.Presistence.Repositories
         {
            _context.RefreshTokens.Add(refreshToken);
         }
-        public async Task<RefreshToken?> GetByIdAsync(Guid id)
+        public async Task<RefreshToken?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-           return await _context.RefreshTokens.FindAsync(id);
+           return await _context.RefreshTokens.FindAsync(id, cancellationToken);
         }
-        public async Task<RefreshToken?> GetByTokenHashAsync( string tokenHash)
+        public async Task<RefreshToken?> GetByTokenHashAsync( string tokenHash, CancellationToken cancellationToken)
         {
-            return await _context.RefreshTokens.Include(t => t.User).FirstOrDefaultAsync(t => t.TokenHash == tokenHash);
+            return await _context.RefreshTokens.Include(t => t.User).FirstOrDefaultAsync(t => t.TokenHash == tokenHash, cancellationToken);
         } 
-        public async Task<bool> TryRevokeAsync(string tokenHash)
+        public async Task<bool> TryRevokeAsync(string tokenHash, CancellationToken cancellationToken)
         {
             return await _context.RefreshTokens
                            .Where(t => t.TokenHash == tokenHash && !t.IsRevoked)
                            .ExecuteUpdateAsync(setters => setters
-                           .SetProperty(x => x.IsRevoked, true)) > 0;
+                           .SetProperty(x => x.IsRevoked, true), cancellationToken) > 0;
         }
     }
 }

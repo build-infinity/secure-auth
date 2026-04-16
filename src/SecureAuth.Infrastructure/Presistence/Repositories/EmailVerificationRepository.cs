@@ -17,9 +17,9 @@ namespace  SecureAuth.Infrastructure.Presistence.Repositories
             _context.EmailVerifications.Add(emailVerification);
         }
 
-        public async Task<EmailVerification?> GetByIdAsync(Guid id)
+        public async Task<EmailVerification?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            return await _context.EmailVerifications.FindAsync(id);
+            return await _context.EmailVerifications.FindAsync(id, cancellationToken);
         }
         public IQueryable<EmailVerification> GetAll()
         {
@@ -29,9 +29,9 @@ namespace  SecureAuth.Infrastructure.Presistence.Repositories
         {
             _context.EmailVerifications.Remove(emailVerification);
         }
-        public async Task<EmailVerification?> GetVerificationByEmailAsync(string email)
+        public async Task<EmailVerification?> GetVerificationByEmailAsync(string email, CancellationToken cancellationToken)
         {
-            return await _context.EmailVerifications.FirstOrDefaultAsync(x => x.Email == email);
+            return await _context.EmailVerifications.FirstOrDefaultAsync(x => x.Email == email, cancellationToken);
         }
     }
 }

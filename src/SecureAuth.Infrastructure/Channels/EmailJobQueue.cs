@@ -12,9 +12,9 @@ namespace SecureAuth.Infrastructure.Channels
         {
             _channel = channel;
         }
-        public ValueTask Enqueue(EmailJob emailJob)
+        public ValueTask Enqueue(EmailJob emailJob, CancellationToken cancellationToken = default)
         {
-            return _channel.Writer.WriteAsync(emailJob); 
+            return _channel.Writer.WriteAsync(emailJob, cancellationToken); 
         }
         public ValueTask<EmailJob> Dequeue(CancellationToken cancellationToken = default)
         {

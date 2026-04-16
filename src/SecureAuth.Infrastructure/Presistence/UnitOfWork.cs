@@ -3,6 +3,7 @@ using SecureAuth.Infrastructure.Persistence.ApplicationDbContext;
 
 namespace SecureAuth.Infrastructure.Presistence
 {
+    // I know this is a bad idea
     internal sealed class UnitOfWork : IUnitOfWork
     {
         private readonly AppDbContext _context;

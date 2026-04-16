@@ -23,53 +23,53 @@ namespace SecureAuth.Api.Controllers
         }
 
         [HttpPost("email-verification/otp")]
-        public async Task<IActionResult> SendOtp([FromBody] EmailOtpRequestDto emailOtpRequestDto)
+        public async Task<IActionResult> SendOtp([FromBody] EmailOtpRequestDto emailOtpRequestDto, CancellationToken cancellationToken)
         {
-            var result = await _emailVerificationService.SendEmailVerificationOtp(emailOtpRequestDto);
+            var result = await _emailVerificationService.SendEmailVerificationOtp(emailOtpRequestDto, cancellationToken);
 
             return result.ToActionResult();
         }
 
         [HttpPost("email-verification/verify")]
-        public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailRequestDto verifyEmailRequestDto)
+        public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailRequestDto verifyEmailRequestDto, CancellationToken cancellationToken)
         {
-            var result = await _emailVerificationService.VerifyEmail(verifyEmailRequestDto);
+            var result = await _emailVerificationService.VerifyEmail(verifyEmailRequestDto, cancellationToken);
 
             return result.ToActionResult();
         }
 
         [HttpPost("signin")]
-        public async Task<IActionResult> SignIn([FromBody] UserSignInRequestDto userSignInRequestDto)
+        public async Task<IActionResult> SignIn([FromBody] UserSignInRequestDto userSignInRequestDto, CancellationToken cancellationToken)
         {
-            var result = await _authService.SignInUser(userSignInRequestDto);
+            var result = await _authService.SignInUser(userSignInRequestDto, cancellationToken);
 
             return result.ToActionResult();
         }
 
         [Authorize(Policy = AppAuthorizationPolicy.Registration)]
         [HttpPost("signup")]
-        public async Task<IActionResult> SignUp([FromBody]UserSignUpRequestDto userSignUpRequestDto)
+        public async Task<IActionResult> SignUp([FromBody]UserSignUpRequestDto userSignUpRequestDto, CancellationToken cancellationToken)
         {
             var email = User.FindFirst(JwtRegisteredClaimNames.Email)!.Value;
 
-            var result = await _authService.SignUpUser(userSignUpRequestDto, email);
+            var result = await _authService.SignUpUser(userSignUpRequestDto, email, cancellationToken);
 
             return result.ToActionResult();
         }
 
         [Authorize(Policy = AppAuthorizationPolicy.Access)]
         [HttpPost("signout")]
-        public async Task<IActionResult> SignOut([FromBody]UserSignOutRequestDto userSignOutRequestDto)
+        public async Task<IActionResult> SignOut([FromBody]UserSignOutRequestDto userSignOutRequestDto, CancellationToken cancellationToken)
         {
-            var result = await _authService.SignOutUser(userSignOutRequestDto);
+            var result = await _authService.SignOutUser(userSignOutRequestDto, cancellationToken);
 
             return result.ToActionResult();
         }
         
         [HttpPost("refresh-token")]
-        public async Task<IActionResult> RefreshToken ([FromBody] RefreshTokenRequestDto refreshTokenRequestDto)
+        public async Task<IActionResult> RefreshToken ([FromBody] RefreshTokenRequestDto refreshTokenRequestDto, CancellationToken cancellationToken)
         {
-            var result = await _authService.TokenRefresh(refreshTokenRequestDto);
+            var result = await _authService.TokenRefresh(refreshTokenRequestDto, cancellationToken);
 
             return result.ToActionResult();
         }

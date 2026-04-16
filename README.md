@@ -5,7 +5,6 @@ It supports **email verification before signup**, **sign in**, **sign out**, **J
 
 The project is built with Clean Architecture in mind, with a structure designed for scalability, maintainability, and future expansion. It also applies the Result Pattern to represent operation outcomes in a consistent way, avoiding exception-driven control flow for expected cases and making success/failure handling more explicit, predictable, and easier to maintain.
 
----
 
 ## ✨ Features
 
@@ -23,7 +22,6 @@ The project is built with Clean Architecture in mind, with a structure designed 
 - **Interface-based communication between layers**
 - **Modular structure using Class Library projects**
 
----
 
 ## 📌 Project Idea
 
@@ -37,7 +35,6 @@ Some parts of the project may look more layered or abstract than a small app str
 - better maintainability
 - simpler future extension
 
----
 
 ## 🏛 Architecture
 
@@ -52,7 +49,6 @@ The project follows **Clean Architecture** principles.
 
 This approach helps keep the codebase modular and easier to scale.
 
----
 
 ## ⚙️ Technologies Used
 
@@ -63,7 +59,6 @@ This approach helps keep the codebase modular and easier to scale.
 - **Email Service / SMTP**
 - **Dependency Injection**
 
----
 
 ## 🔐 Authentication Flow
 
@@ -84,7 +79,6 @@ A registered user can sign in and receive:
 ### 5. Signout
 The user can sign out and the authentication token lifecycle is handled accordingly.
 
----
 
 ## 📧 Email Delivery
 
@@ -99,7 +93,6 @@ This provides several benefits:
 
 This is especially useful for verification-related email workflows.
 
----
 
 ### Role-based Authorization
 Access can be controlled based on roles such as:
@@ -113,7 +106,6 @@ Policies are used for more advanced and fine-grained authorization rules.
 
 This makes the project suitable for real applications where access rules may become more complex over time.
 
----
 
 ## 🧩 Why So Many Layers?
 
@@ -128,7 +120,6 @@ The goal is to make the system:
 
 Using interfaces, abstractions, and DI helps keep the project flexible and reduces tight coupling between modules.
 
----
 
 ## 📌 Example Capabilities
 
@@ -153,7 +144,6 @@ The project is structured in a way that makes it easier to add features such as:
 - integration tests
 - Docker support
 
----
 
 ## 📈 Project Philosophy
 
