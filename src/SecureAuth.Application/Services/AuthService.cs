@@ -36,8 +36,9 @@ namespace SecureAuth.Application.Services
         }
        
         public async Task<Result<UserSignUpResponseDto>> SignUpUser (UserSignUpRequestDto userRegistrationRequestDto, string userEmailFromJwt, CancellationToken cancellationToken)
-        {    
-            if(await _userRepository.EmailExistsAsync(userEmailFromJwt, cancellationToken))
+        {
+            var normalizedEmail = userEmailFromJwt.ToLowerInvariant();
+            if(await _userRepository.ExistsByEmailAsync(normalizedEmail, cancellationToken))
                  return EmailErrors.AlreadyExists;
 
             var error = PasswordValidator.Validate(userRegistrationRequestDto.Password.Trim());
@@ -54,7 +55,7 @@ namespace SecureAuth.Application.Services
                 LastName = userRegistrationRequestDto.LastName,
                 PasswordHash = _passwordHasher.Hash(userRegistrationRequestDto.Password),
                 Email = userEmailFromJwt,
-                NormalizedEmail = userEmailFromJwt.ToUpper(),
+                NormalizedEmail = normalizedEmail,
                 CreatedOnUtc = DateTime.UtcNow
             };
 
@@ -86,7 +87,7 @@ namespace SecureAuth.Application.Services
 
         public async Task<Result<UserSignInResponseDto>> SignInUser(UserSignInRequestDto userSignInRequestDto, CancellationToken cancellationToken)
         {
-            var verifiedUser = await _userRepository.GetByNormalizedEmailAsync(userSignInRequestDto.Email.ToUpperInvariant(), cancellationToken);
+            var verifiedUser = await _userRepository.GetByEmailAsync(userSignInRequestDto.Email.Trim().ToLowerInvariant(), cancellationToken);
             if(verifiedUser is null)
                 return AuthErrors.InvalidCredentials;
             
@@ -168,7 +169,7 @@ namespace SecureAuth.Application.Services
             _refreshTokenRepository.Add(token);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return new RefreshTokenResponseDto{ 
+            return new RefreshTokenResponseDto { 
                 AccessToken = accessTokenResult.Token, 
                 AccessTokenExpiresOnUtc = accessTokenResult.ExpiresOnUtc,
                 RefreshToken = refreshTokenResult.Token,

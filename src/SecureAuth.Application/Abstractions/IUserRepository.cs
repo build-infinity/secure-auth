@@ -6,9 +6,9 @@ namespace SecureAuth.Application.Abstractions
     {
         void Add(User user);
         Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
-        Task<User?> GetByNormalizedEmailAsync(string normalizedEmail, CancellationToken cancellationToken);
+        Task<User?> GetByEmailAsync(string normalizedEmail, CancellationToken cancellationToken);
         IQueryable<User> GetAll();
         void Remove(User user);
-        Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken);
+        Task<bool> ExistsByEmailAsync(string normalizedEmail, CancellationToken cancellationToken);
     }
 }

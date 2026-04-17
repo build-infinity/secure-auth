@@ -29,9 +29,9 @@ namespace  SecureAuth.Infrastructure.Presistence.Repositories
         {
             _context.EmailVerifications.Remove(emailVerification);
         }
-        public async Task<EmailVerification?> GetVerificationByEmailAsync(string email, CancellationToken cancellationToken)
+        public async Task<EmailVerification?> GetVerificationByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
         {
-            return await _context.EmailVerifications.FirstOrDefaultAsync(x => x.Email == email, cancellationToken);
+            return await _context.EmailVerifications.FirstOrDefaultAsync(x => x.NormalizedEmail == normalizedEmail, cancellationToken);
         }
     }
 }

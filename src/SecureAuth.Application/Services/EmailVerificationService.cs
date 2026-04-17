@@ -35,10 +35,12 @@ namespace SecureAuth.Application.Services
 
         public async Task<Result<EmailOtpResponseDto>> SendEmailVerificationOtp(EmailOtpRequestDto emailOtpRequestDto, CancellationToken cancellationToken)
         {
-            if(await _userRepository.EmailExistsAsync(emailOtpRequestDto.Email, cancellationToken))
+            var normalizedEmail = emailOtpRequestDto.Email.Trim().ToLowerInvariant();
+
+            if(await _userRepository.ExistsByEmailAsync(normalizedEmail, cancellationToken))
                  return EmailErrors.AlreadyExists;
 
-            var emailVerificationExists= await _emailVerificationRepository.GetVerificationByEmailAsync(emailOtpRequestDto.Email, cancellationToken);
+            var emailVerificationExists= await _emailVerificationRepository.GetVerificationByEmailAsync(normalizedEmail, cancellationToken);
             
            if( emailVerificationExists is not null && emailVerificationExists.OtpExpiresOnUtc > DateTime.UtcNow)                
            {
@@ -51,7 +53,7 @@ namespace SecureAuth.Application.Services
             EmailVerification emailVerification = new EmailVerification 
             {
                 VerificationId = Guid.NewGuid(),
-                Email = emailOtpRequestDto.Email,
+                NormalizedEmail = normalizedEmail,
                 OtpHash = Helper.Hash(otp),
                 OtpExpiresOnUtc = DateTime.UtcNow.AddMinutes(Otp.ExpiresInMinutes),
                 CreatedOnUtc = DateTime.UtcNow
@@ -80,13 +82,13 @@ namespace SecureAuth.Application.Services
            if(!Helper.Verify(data : emailRequestDto.Otp, storedDataHash : emailVerification!.OtpHash))
             {
                 emailVerification.AttemptCount++;
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
                 return OtpErrors.Invalid;
             }
 
            emailVerification.IsUsed = true;
 
-           var tokenResult = _tokenProvider.GenerateRegistrationToken(emailVerification.Email); 
+           var tokenResult = _tokenProvider.GenerateRegistrationToken(emailVerification.NormalizedEmail); 
 
            await _unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -17,7 +17,7 @@ namespace SecureAuth.Infrastructure.Presistence.Repositories
         {
             _context.Users.Add(user);
         }
-        public async Task<User?> GetByNormalizedEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
+        public async Task<User?> GetByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
         {
             return await _context.Users.AsNoTracking().SingleOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail, cancellationToken);
         }
@@ -34,9 +34,9 @@ namespace SecureAuth.Infrastructure.Presistence.Repositories
         {
            _context.Users.Remove(user);
         }
-        public async Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken)
+        public async Task<bool> ExistsByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
         {
-            return await _context.Users.AnyAsync(x => x.Email == email, cancellationToken);
+            return await _context.Users.AnyAsync(x => x.NormalizedEmail == normalizedEmail, cancellationToken);
         }
     }
 }
