@@ -57,8 +57,6 @@ namespace SecureAuth.Infrastructure
             services.AddSingleton<IEmailJobQueue>(sp => sp.GetRequiredService<EmailJobQueue>());
             services.AddHostedService<EmailBackgroundService>();
             services.AddSingleton(TimeProvider.System);
-
-            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); 
             
             services.AddAuthentication()
                     .AddJwtBearer(AppAuthenticationScheme.Access)
@@ -82,6 +80,9 @@ namespace SecureAuth.Infrastructure
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(jwt.AccessKey)
                     ),
+
+                    NameClaimType = JwtRegisteredClaimNames.Sub,
+                    RoleClaimType = "role",
                     ClockSkew = TimeSpan.Zero
                 };
             });
@@ -115,14 +116,15 @@ namespace SecureAuth.Infrastructure
                 options.AddPolicy(AppAuthorizationPolicy.Registration, policy =>
                 {
                     policy.AuthenticationSchemes.Add(AppAuthenticationScheme.Registration); 
-                    policy.RequireClaim("email"); 
                     policy.RequireAuthenticatedUser();
+                    policy.RequireClaim("email"); 
                 });
 
                 options.AddPolicy(AppAuthorizationPolicy.Access, policy =>
                 {
                     policy.AuthenticationSchemes.Add(AppAuthenticationScheme.Access);
                     policy.RequireAuthenticatedUser();
+                    policy.RequireRole("User");
                 } );
             });
 

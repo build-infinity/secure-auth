@@ -24,7 +24,7 @@ namespace SecureAuth.Infrastructure.Security.JwtTokenProvider
         }
         public TokenResult GenerateAccessToken(User user)
         {
-            Claim[] claims = new Claim[]
+            var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub,user.UserId.ToString()),
                 new Claim (JwtRegisteredClaimNames.GivenName,user.FirstName),
@@ -32,6 +32,11 @@ namespace SecureAuth.Infrastructure.Security.JwtTokenProvider
                 new Claim(JwtRegisteredClaimNames.Email,user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString())
             };
+
+            foreach(var role in user.UserRoles)
+            {
+                claims.Add(new Claim("role",role.Role.Name));
+            }
 
             var expiresOnUtc = _timeProvider.GetUtcNow().AddMinutes(_jwtOptions.AccessExpiresInMinutes).UtcDateTime;
             string token = GenerateToken(
@@ -44,7 +49,7 @@ namespace SecureAuth.Infrastructure.Security.JwtTokenProvider
         }
         public TokenResult GenerateRegistrationToken(string email)
         {
-            Claim[] claims = new Claim[]
+            var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Email,email)
             };
@@ -69,7 +74,7 @@ namespace SecureAuth.Infrastructure.Security.JwtTokenProvider
                 ExpiresOnUtc = _timeProvider.GetUtcNow().AddDays(_refreshTokenOptions.LifeTimeDays).UtcDateTime
              };
         }
-        private string GenerateToken(string key, Claim[] claims, DateTime expiresAt)
+        private string GenerateToken(string key, List<Claim> claims, DateTime expiresAt)
         {
             byte[] keyBytes = Encoding.UTF8.GetBytes(key);
 
